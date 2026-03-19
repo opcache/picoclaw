@@ -136,11 +136,10 @@ func (c *FeishuChannel) Send(ctx context.Context, msg bus.OutboundMessage) error
 		return nil
 	}
 
-	// Check if error is due to card limitations (e.g., table limit exceeded)
+	// Check if error is due to card table limit (error code 11310)
+	// See: https://open.feishu.cn/document/server-docs/im-api/message-content-description/create_json
 	errMsg := err.Error()
-	isCardLimitError := strings.Contains(errMsg, "table") ||
-		strings.Contains(errMsg, "230099") ||
-		strings.Contains(errMsg, "11310")
+	isCardLimitError := strings.Contains(errMsg, "11310")
 
 	if isCardLimitError {
 		logger.WarnCF("feishu", "Card send failed (table limit), falling back to text message", map[string]any{
